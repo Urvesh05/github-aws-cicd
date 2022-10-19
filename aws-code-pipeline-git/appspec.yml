@@ -1,11 +1,11 @@
 version: 0.0
 os: linux
 files:
-- source: /
-  destination: /home/
+- source: /index.php
+  destination: /var/www/html/index.php
 hooks:
   AfterInstall:
-  - location: fix_previleges.sh
+  - location: pre-install.sh
     timeout: 300
     runas: root
   ApplicationStart:
@@ -13,7 +13,8 @@ hooks:
     timeout: 300
     runas: root
   ApplicationStop:
-  - location: stop_server.sh
+  # - location: stop_server.sh
+  - location: post-install.sh
     timeout: 300
     runas: root
 

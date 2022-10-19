@@ -384,3 +384,725 @@ Resources:
                 Action:
                   - "codedeploy:*"
 
+
+##lambda function create to php laravel test
+  MyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Lambda function to hosts entire application codebase
+      CodeUri: .
+      Runtime: provided.al2
+      Handler: ../bref_test/app/public/index.php #follows our Laravel implementation
+      MemorySize: 1024
+      Timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
+      Role: !GetAtt LaravelFunctionExecutionRole.Arn
+
+      Layers:
+        - 'arn:aws:lambda:us-east-1:209497400698:layer:php-81-fpm:32'
+      Events:
+        LaravelRootApi:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+
+  LaravelFunctionExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: Laravel_Job_Role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: allowLambdaLogging
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+
+Outputs:
+  LaravelFunctionApi:
+    Description: 'URL of our function in the Gateway API *Prod* environment'
+    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/'
+
+
+
+
+
+######........................#####   
+
+# AWSTemplateFormatVersion: 2010-09-09
+# Description: AWS Cloudformation Template for CSC-Portal Setup
+
+# Parameters:
+#   ClientShortName:
+#     Description: Client Short Name
+#     Type: String
+#     Default: csc-portal
+
+#   ApplicationName:
+#     Description: "Used to name resources provisioned by this template"
+#     Type: String
+#     Default: pipeline-cf-csc
+
+#   Ec2Role:
+#     Description: EC2 type
+#     Default: imagebuilderRoleEc2
+#     Type: String
+
+#   KeyPair:
+#     Description: "The name of the SSH keypair to use for connecting to EC2 hosts"
+#     Type: String
+#     Default: kp-ab-sdlc
+
+#   GitHubUser:
+#     Description: "The GitHub username which owns the repository to be deployed"
+#     Type: String
+#     Default: "assessbank"
+
+#   GitHubRepository:
+#     Description: "The name of the repository to deploy"
+#     Type: String
+#     Default: 'assessbank/csc-portal'
+
+#   GitHubBranch:
+#     Description: "The branch of the repository to deploy"
+#     Type: String
+#     Default: "develop"
+
+#   CodePipelineRoleArn:
+#     Type: String
+#     Default: "arn:aws:iam::496632592658:role/service-role/AWSCodePipelineServiceRole-ca-central-1-tao-skeleton-pipeline1"
+
+#   LambdaS3BucketPath:
+#     Default: s3://s3-infra-setup-test/deleteAutoScalingGroup.js.zip
+#     Type: String
+
+#   VpcId:
+#     Description: VPC Network
+#     Default: vpc-0b7badd97113bf020
+#     Type: String
+
+#   Subnet1:
+#     Description: Subnet 1
+#     Default: subnet-020beb5998863089b
+#     Type: String
+
+#   Subnet2:
+#     Description: Subnet 2
+#     Default: subnet-063d4bc271ffa2bdc
+#     Type: String
+
+#   Ec2Type:
+#     Description: EC2 type
+#     Default: t2.micro
+#     Type: String
+
+#   SecurityGroup1:
+#     Description: Security Group for launch template
+#     Default: sg-0284b69537284cbcb
+#     Type: String
+
+#   SecurityGroup2:
+#     Description: Security Group for launch template
+#     Default: "sg-00d5657fa80f9335c"
+#     Type: String
+
+#   SSLCertArn:
+#     Description: Security SSL Cert ARN
+#     Default: "arn:aws:acm:ca-central-1:496632592658:certificate/18b2c9f6-445c-4312-854e-8744f6ecfe68"
+#     Type: String
+
+#   CodestarConnectionArn:
+#     Description: Code Star Connection
+#     Default: "arn:aws:codestar-connections:ca-central-1:496632592658:connection/a447a284-23b2-4448-96dd-461ab0895b38"
+#     Type: String
+
+#   ImageId:
+#     Description: EC2 Ami id
+#     Default: "ami-0fa726c08a7fd072e"
+#     Type: String
+
+#   SlackChannel:
+#     Description: Slack Channel
+#     Default: "aws-codepipelin-events"
+#     Type: String
+
+#   SlackUser:
+#     Description: Slack Username
+#     Default: "Pipelines"
+#     Type: String
+
+#   SlackWebHookUrl:
+#     Description: Slack WebHook Url
+#     Default: "https://hooks.slack.com/services/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"
+#     Type: String
+
+#   HostZoneId:
+#     Description: Host Zone Id
+#     Default: Z102299837CK3N5KTXMYM
+#     Type: String
+
+#   RecordName:
+#     Description: Record Name
+#     Default: "csc-sdlc-web3.assessbanktest.com"
+#     Type: String
+
+
+# Resources:
+#   S3Bucket:
+#     Type: 'AWS::S3::Bucket'
+#     Properties:
+#       OwnershipControls:
+#         Rules:
+#           - ObjectOwnership: ObjectWriter
+#   DBSecret:
+#     Type: AWS::SecretsManager::Secret
+#     Properties:
+#       Description: 'Application database secret manager'
+#       Name:
+#           Fn::Join:
+#             - "-"
+#             - - "cp-sm"
+#               - !Ref ClientShortName
+#       GenerateSecretString:
+#         SecretStringTemplate: !Sub '{"username": "${ClientShortName}","CSC_APP_KEY": "","CSC_DB_DATABASE":"","CSC_APP_URL":"","CSC_DB_HOST":"","CSC_DB_HOST_READ":"","CSC_AWS_BUCKET":"","CSC_DB_USERNAME":"","CSC_DB_PASSWORD":"","CSC_AWS_DEFAULT_REGION":"${AWS::Region}"}'
+#         GenerateStringKey: 'password'
+#         PasswordLength: 16
+#         ExcludeCharacters: '"@/\%+'
+#       Tags:
+#         - Key: Name
+#           Value: !Ref ClientShortName
+
+#   CscAlb:
+#     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
+#     Properties:
+#       Name:
+#         Fn::Join:
+#           - "-"
+#           - - "cp-lb"
+#             - !Ref ClientShortName
+
+#       Scheme: internet-facing
+#       Subnets:
+#         - !Ref Subnet1
+#         - !Ref Subnet2
+#       SecurityGroups:
+#         - !Ref SecurityGroup1
+#       Tags:
+#         - Key: client
+#           Value: !Ref ClientShortName
+
+#   ALBListener:
+#     Type: 'AWS::ElasticLoadBalancingV2::Listener'
+#     Properties:
+#       DefaultActions:
+#         - Type: forward
+#           TargetGroupArn: !Ref CscEc2TargetGroup
+#       LoadBalancerArn: !Ref CscAlb
+#       Port: '443'
+#       Protocol: HTTPS
+#       SslPolicy: ELBSecurityPolicy-2016-08
+#       Certificates:
+#         - CertificateArn: !Ref SSLCertArn
+
+#   CscEc2TargetGroup:
+#     Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+#     Properties:
+
+#       Name:
+#         Fn::Join:
+#           - "-"
+#           - - "cp-tg"
+#             - !Ref ClientShortName
+
+#       HealthCheckIntervalSeconds: 10
+#       HealthCheckProtocol: HTTP
+#       HealthCheckTimeoutSeconds: 5
+#       HealthyThresholdCount: 2
+#       Matcher:
+#         HttpCode: 200,302
+#       Port: 80
+#       Protocol: HTTP
+#       HealthCheckPath: /test.html
+#       TargetGroupAttributes:
+#         - Key: deregistration_delay.timeout_seconds
+#           Value: 20
+#       UnhealthyThresholdCount: 3
+#       Tags:
+#         - Key: Name
+#           Value: CscEc2TargetGroup
+#         - Key: client
+#           Value: !Ref ClientShortName
+#       VpcId: !Ref VpcId
+
+#   Route53DNS:
+#     Type: AWS::Route53::RecordSetGroup
+#     Properties:
+#      HostedZoneId: !Ref HostZoneId
+#      RecordSets:
+#       - Name: !Ref RecordName
+#         Type: A
+#         AliasTarget:
+#           HostedZoneId: !GetAtt CscAlb.CanonicalHostedZoneID
+#           DNSName: !GetAtt CscAlb.DNSName
+
+#   CodePipeline:
+#     Type: AWS::CodePipeline::Pipeline
+#     Properties:
+#       Name:
+#         Fn::Join:
+#           - "-"
+#           - - "cp"
+#             - !Ref ClientShortName
+#       RoleArn: !Ref CodePipelineRoleArn
+#       Tags:
+#         - Key: client
+#           Value: !Ref ClientShortName
+#       Stages:
+#         - Name: Source
+#           Actions:
+#             - Name: GitHub
+#               ActionTypeId:
+#                 Category: Source
+#                 Owner: AWS
+#                 Version: 1
+#                 Provider: CodeStarSourceConnection
+#               OutputArtifacts:
+#                 -  Name: SourceArtifact
+#               Configuration:
+#                 ConnectionArn: !Ref CodestarConnectionArn
+#                 FullRepositoryId: !Ref GitHubRepository
+#                 BranchName: !Ref GitHubBranch
+#                 OutputArtifactFormat: "CODE_ZIP"
+
+#         - Name: Build
+#           Actions:
+#             - Name: Build
+#               InputArtifacts:
+#                 - Name: SourceArtifact
+#               ActionTypeId:
+#                 Category: Build
+#                 Owner: AWS
+#                 Version: 1
+#                 Provider: CodeBuild
+#               OutputArtifacts:
+#                 - Name: BuildArtifact
+#               Namespace: BuildVariables
+#               Configuration:
+#                 ProjectName: !Ref CodeBuild
+#                 EnvironmentVariables:
+#                   Fn::Join:
+#                     - ""
+#                     - - '['
+
+#                       - '{"name":"CSC_SECRET_MANAGER", "value": "'
+#                       - !Ref DBSecret
+#                       - '" , "type":"PLAINTEXT"},'
+
+#                       - '{"name":"CSC_CODE_DEPLOY_GROUP_NAME", "value": "'
+#                       - !Ref DeploymentGroup
+#                       - '" , "type":"PLAINTEXT"},'
+
+#                       - '{"name":"CSC_CODE_DEPLOY_APP_NAME", "value": "'
+#                       - !Ref CodeDeployApplication
+#                       - '" , "type":"PLAINTEXT"},'
+
+#                       - '{"name":"CSC_LB_TARGET_GROUP_ARN", "value": "'
+#                       - !Ref CscEc2TargetGroup
+#                       - '" , "type":"PLAINTEXT"}]'
+#         - Name: Deploy
+#           Actions:
+#             - Name: Deploy
+#               RunOrder: 1
+#               InputArtifacts:
+#                 - Name: BuildArtifact
+#               ActionTypeId:
+#                 Category: Deploy
+#                 Owner: AWS
+#                 Version: 1
+#                 Provider: CodeDeploy
+#               Configuration:
+#                 ApplicationName: !Ref CodeDeployApplication
+#                 DeploymentGroupName:
+#                     Fn::Join:
+#                       - "-"
+#                       - - "cp-cg"
+#                         - !Ref ClientShortName
+#       ArtifactStore:
+#         Type: S3
+#         Location: !Ref S3Bucket
+
+
+#   CodeBuild:
+#     Type: AWS::CodeBuild::Project
+#     Properties:
+#       Name:
+#         Fn::Join:
+#           - "-"
+#           - - "cp-cb"
+#             - !Ref ClientShortName
+#       Tags:
+#         - Key: client
+#           Value: !Ref ClientShortName
+
+#       Description: "Build project for the application"
+#       ServiceRole: !GetAtt CodeBuildRole.Arn
+#       Source:
+#         Type: CODEPIPELINE
+#         BuildSpec: deploy/buildspec.yml
+#       Environment:
+#         ComputeType: BUILD_GENERAL1_SMALL
+#         Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+#         Type: LINUX_CONTAINER
+
+#       Artifacts:
+#         Name:
+#           Fn::Join:
+#             - "-"
+#             - - "cp-cb"
+#               - !Ref ClientShortName
+#         Type: CODEPIPELINE
+
+#   CodeDeployApplication:
+#     Type: AWS::CodeDeploy::Application
+#     Properties:
+#       ApplicationName:
+#         Fn::Join:
+#           - "-"
+#           - - "cp-cd"
+#             - !Ref ClientShortName
+
+#       ComputePlatform: Server
+#       Tags:
+#         - Key: client
+#           Value: !Ref ClientShortName
+
+#   DeploymentGroup:
+#     Type: AWS::CodeDeploy::DeploymentGroup
+#     Properties:
+#       ApplicationName: !Ref CodeDeployApplication
+#       ServiceRoleArn:  !GetAtt CodeDeployServiceRole.Arn
+#       AutoScalingGroups:
+#          - !Ref AutoScalingGroup
+#       DeploymentGroupName:
+#         Fn::Join:
+#           - "-"
+#           - - "cp-cg"
+#             - !Ref ClientShortName
+#       LoadBalancerInfo:
+#         TargetGroupInfoList:
+#             - Name:
+#                   Fn::Join:
+#                     - "-"
+#                     - - "cp-tg"
+#                       - !Ref ClientShortName
+#       Tags:
+#         - Key: client
+#           Value: !Ref ClientShortName
+
+#   AutoScalingGroup:
+#     Type: AWS::AutoScaling::AutoScalingGroup
+#     Properties:
+#       MinSize: '1'
+#       MaxSize: '3'
+#       AutoScalingGroupName:
+#         Fn::Join:
+#           - "-"
+#           - - "cp-asg"
+#             - !Ref ClientShortName
+#       DesiredCapacity: '3'
+#       LaunchConfigurationName: !Ref LaunchTemplate
+#       VPCZoneIdentifier:
+#           - !Ref Subnet1
+#       Tags:
+#           -
+#             Key: Name
+#             Value: !Ref ClientShortName
+#             PropagateAtLaunch: 'true'
+
+#   LaunchTemplate:
+#     Type: AWS::AutoScaling::LaunchConfiguration
+#     Properties:
+#       ImageId: !Ref ImageId
+#       IamInstanceProfile : !Ref Ec2Role
+#       InstanceType: !Ref Ec2Type
+#       KeyName: !Ref KeyPair
+#       LaunchConfigurationName:
+#         Fn::Join:
+#           - "-"
+#           - - "cp-asg-lt"
+#             - !Ref ClientShortName
+#       SecurityGroups:
+#         - !Ref SecurityGroup2
+
+#   CodePipelineCloudFormationRole:
+#     Type: AWS::IAM::Role
+#     Properties:
+#       Path: /
+#       RoleName: !Sub "role-${ApplicationName}-${ClientShortName}-cfn-${AWS::Region}"
+#       AssumeRolePolicyDocument:
+#         Statement:
+#           - Effect: "Allow"
+#             Principal:
+#               Service: "cloudformation.amazonaws.com"
+#             Action:
+#               - "sts:AssumeRole"
+#       Policies:
+#         - PolicyName: !Sub "policy-${ApplicationName}-${ClientShortName}cfn-${AWS::Region}"
+#           PolicyDocument:
+#             Statement:
+#               - Effect: "Allow"
+#                 Resource: "*"
+#                 Action:
+#                   - "*"
+#       Tags:
+#         - Key: client
+#           Value: !Ref ClientShortName
+
+#   CodePipelineRole:
+#     Type: AWS::IAM::Role
+#     Properties:
+#       Path: /
+#       RoleName: !Sub "role-${ApplicationName}-${ClientShortName}-codepipeline-${AWS::Region}"
+#       Tags:
+#         - Key: client
+#           Value: !Ref ClientShortName
+#       AssumeRolePolicyDocument:
+#         Statement:
+#           - Effect: "Allow"
+#             Principal:
+#               Service: "codepipeline.amazonaws.com"
+#             Action:
+#               - "sts:AssumeRole"
+#       Policies:
+#         - PolicyName: !Sub "policy-${ApplicationName}-${ClientShortName}-codepipeline-${AWS::Region}"
+#           PolicyDocument:
+#             Statement:
+#               - Effect: "Allow"
+#                 Resource: "*"
+#                 Action:
+#                   - "s3:PutObject"
+#                   - "s3:GetObject"
+#                   - "s3:GetObjectVersion"
+#                   - "s3:GetBucketVersioning"
+#               - Effect: "Allow"
+#                 Resource: "*"
+#                 Action:
+#                   - "codedeploy:CreateDeployment"
+#                   - "codedeploy:GetApplicationRevision"
+#                   - "codedeploy:GetDeployment"
+#                   - "codedeploy:GetDeploymentConfig"
+#                   - "codedeploy:RegisterApplicationRevision"
+#                   - "codebuild:BatchGetBuilds"
+#                   - "codebuild:StartBuild"
+#                   - "iam:PassRole"
+#               - Effect: "Allow"
+#                 Resource: "*"
+#                 Action:
+#                   - "cloudformation:CreateStack"
+#                   - "cloudformation:DeleteStack"
+#                   - "cloudformation:DescribeStacks"
+#                   - "cloudformation:UpdateStack"
+#                   - "cloudformation:CreateChangeSet"
+#                   - "cloudformation:DeleteChangeSet"
+#                   - "cloudformation:DescribeChangeSet"
+#                   - "cloudformation:ExecuteChangeSet"
+#                   - "cloudformation:SetStackPolicy"
+#                   - "cloudformation:ValidateTemplate"
+#               - Effect: "Allow"
+#                 Resource: "*"
+#                 Action:
+#                   - "codestar:*"
+
+
+#   CodePipelineCloudFormationRole:
+#     Type: AWS::IAM::Role
+#     Properties:
+#       Path: /
+#       RoleName: !Sub "role-${ApplicationName}-${ClientShortName}-cfn-${AWS::Region}"
+#       Tags:
+#         - Key: client
+#           Value: !Ref ClientShortName
+#       AssumeRolePolicyDocument:
+#         Statement:
+#           - Effect: "Allow"
+#             Principal:
+#               Service: "cloudformation.amazonaws.com"
+#             Action:
+#               - "sts:AssumeRole"
+#       Policies:
+#         - PolicyName: !Sub "policy-${ApplicationName}-${ClientShortName}-cfn-${AWS::Region}"
+#           PolicyDocument:
+#             Statement:
+#               - Effect: "Allow"
+#                 Resource: "*"
+#                 Action:
+#                   - "*"
+
+#   CodeDeployServiceRole:
+#     Type: AWS::IAM::Role
+#     Properties:
+#       Path: /
+#       RoleName: !Sub "role-${ApplicationName}-${ClientShortName}-codedeploy-${AWS::Region}"
+#       Tags:
+#         - Key: client
+#           Value: !Ref ClientShortName
+#       AssumeRolePolicyDocument:
+#         Statement:
+#           - Effect: "Allow"
+#             Principal:
+#               Service: "codedeploy.amazonaws.com"
+#             Action:
+#               - "sts:AssumeRole"
+#       ManagedPolicyArns:
+#         - "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
+
+#   CodeBuildRole:
+#     Type: AWS::IAM::Role
+#     Properties:
+#       Path: /
+#       RoleName: !Sub "role-${ApplicationName}-${ClientShortName}-codebuild-${AWS::Region}"
+#       Tags:
+#         - Key: client
+#           Value: !Ref ClientShortName
+#       AssumeRolePolicyDocument:
+#         Statement:
+#           - Effect: "Allow"
+#             Principal:
+#               Service: "codebuild.amazonaws.com"
+#             Action:
+#               - "sts:AssumeRole"
+#       Policies:
+#         - PolicyName: !Sub "policy-${ApplicationName}-${ClientShortName}-codebuild-${AWS::Region}"
+#           PolicyDocument:
+#             Statement:
+#               - Effect: "Allow"
+#                 Resource: "*"
+#                 Action:
+#                   - "codedeploy:UpdateApplication"
+#                   - "codedeploy:UpdateDeploymentGroup"
+#                   - "codedeploy:GetDeploymentGroup"
+#                   - "cloudformation:DescribeStacks"
+#                   - "secretsmanager:GetSecretValue"
+#               - Effect: "Allow"
+#                 Resource: "*"
+#                 Action:
+#                   - "logs:CreateLogGroup"
+#                   - "logs:CreateLogStream"
+#                   - "logs:PutLogEvents"
+#               - Effect: "Allow"
+#                 Resource: "*"
+#                 Action:
+#                   - "s3:GetObject"
+#                   - "s3:GetObjectVersion"
+#                   - "s3:PutObject"
+#   LambdaEventRoles:
+#     Type: AWS::IAM::Role
+#     Properties:
+#       Path: /
+#       RoleName: !Sub "role-${ApplicationName}-${ClientShortName}-lambda-${AWS::Region}"
+#       Tags:
+#         - Key: client
+#           Value: !Ref ClientShortName
+#       AssumeRolePolicyDocument:
+#         Statement:
+#           - Effect: "Allow"
+#             Principal:
+#               Service: "lambda.amazonaws.com"
+#             Action:
+#               - "sts:AssumeRole"
+#       Policies:
+#         - PolicyName: !Sub "policy-${ApplicationName}-${ClientShortName}-codepipeline-${AWS::Region}"
+#           PolicyDocument:
+#             Statement:
+#               - Effect: "Allow"
+#                 Resource: "*"
+#                 Action:
+#                   - "ssm:*"
+#               - Effect: "Allow"
+#                 Resource: "*"
+#                 Action:
+#                   - "logs:CreateLogGroup"
+#                   - "logs:CreateLogStream"
+#                   - "logs:PutLogEvents"
+#               - Effect: "Allow"
+#                 Resource: "*"
+#                 Action:
+#                   - "autoscaling:*"
+#               - Effect: "Allow"
+#                 Resource: "*"
+#                 Action:
+#                   - "codedeploy:*"
+
+#   EventRuleCase:
+#     Type: AWS::Events::Rule
+#     Properties:
+#       Description: "csc-portal"
+#       EventPattern:
+#         source:
+#           - "aws.codepipeline"
+#         detail-type:
+#           - "CodePipeline Pipeline Execution State Change"
+#         detail:
+#           state:
+#             - "FAILED"
+#             - "SUCCEEDED"
+#       State: "ENABLED"
+#       Targets:
+#         -
+#           Arn:
+#             Fn::GetAtt:
+#               - "DeleteAutoScalingGroup"
+#               - "Arn"
+#           Id: "TargetFunctionV1"
+
+#   PermissionForEventsToInvokeLambda:
+#     Type: AWS::Lambda::Permission
+#     Properties:
+#       FunctionName:
+#         Ref: DeleteAutoScalingGroup
+#       Action: "lambda:InvokeFunction"
+#       Principal: "events.amazonaws.com"
+#       SourceArn:
+#         Fn::GetAtt:
+#           - "EventRuleCase"
+#           - "Arn"
+
+#   DeleteAutoScalingGroup:
+#     Type: AWS::Lambda::Function
+#     Properties:
+#       Runtime: nodejs14.x
+#       Code:
+#         S3Bucket: !Select [2, !Split ["/", !Ref LambdaS3BucketPath ]]
+#         S3Key: !Select [3, !Split ["/", !Ref LambdaS3BucketPath ]]
+#       Handler: deleteAutoScalingGroup.handler
+#       Role: !GetAtt LambdaEventRoles.Arn
+#       Environment:
+#         Variables:
+#           "ClientShortName":
+#                   Fn::Join:
+#                     - "-"
+#                     - - "cp-cg"
+#                       - !Ref ClientShortName
+#           "CODE_DEPLOY_APP_NAME": !Ref CodeDeployApplication
+#           "CODE_DEPLOY_GROUP_NAME": !Ref DeploymentGroup
+#           "PIPELINE_NAME":
+#                   Fn::Join:
+#                     - "-"
+#                     - - "cp"
+#                       - !Ref ClientShortName
+#           "SLACK_CHANNEL": !Ref SlackChannel
+#           "SLACK_USER": !Ref SlackUser
+#           "SLACK_WEBHOOK_URL": !Ref SlackWebHookUrl

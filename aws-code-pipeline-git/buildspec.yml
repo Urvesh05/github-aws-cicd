@@ -21,16 +21,79 @@ phases:
 
   build:
     commands:
-      - php artisan config:clear
+      # - php artisan config:clear
       - php artisan cache:clear
-      - php artisan view:clear
-      - php artisan route:clear 
+      # - php artisan view:clear
+      # - php artisan route:clear 
 
   post_build:
     commands:
-      - php artisan migrate
-      - yarn run prod
+      # - php artisan migrate
+      # - yarn run prod
 
 artifacts:
   files:
     - '**/*'
+
+
+
+
+    ############-----------------------##############33
+
+#     version: 0.2
+
+# phases:
+#   install:
+#     runtime-versions:
+#       php: 7.4
+#       nodejs: 12.x
+
+#     commands:
+#       - curl -s https://getcomposer.org/installer | php
+#       - mv composer.phar /usr/bin/composer
+#       - npm install -g yarn
+#       - npm i aws-sdk
+#       - yum install -y jq
+#   pre_build:
+#     commands:
+#       - cp .env.example .env
+#       - export CSC_APP_KEY=$(aws secretsmanager get-secret-value --secret-id $CSC_SECRET_MANAGER --output text --query SecretString | jq -r '.CSC_APP_KEY')
+#       - export CSC_APP_URL=$(aws secretsmanager get-secret-value --secret-id $CSC_SECRET_MANAGER --output text --query SecretString | jq -r '.CSC_APP_URL')
+#       - export CSC_DB_HOST=$(aws secretsmanager get-secret-value --secret-id $CSC_SECRET_MANAGER --output text --query SecretString | jq -r '.CSC_DB_HOST')
+#       - export CSC_DB_HOST_READ=$(aws secretsmanager get-secret-value --secret-id $CSC_SECRET_MANAGER --output text --query SecretString | jq -r '.CSC_DB_HOST_READ')
+#       - export CSC_DB_USERNAME=$(aws secretsmanager get-secret-value --secret-id $CSC_SECRET_MANAGER --output text --query SecretString | jq -r '.CSC_DB_USERNAME')
+#       - export CSC_AWS_DEFAULT_REGION=$(aws secretsmanager get-secret-value --secret-id $CSC_SECRET_MANAGER --output text --query SecretString | jq -r '.CSC_AWS_DEFAULT_REGION')
+#       - export CSC_AWS_BUCKET=$(aws secretsmanager get-secret-value --secret-id $CSC_SECRET_MANAGER --output text --query SecretString | jq -r '.CSC_AWS_BUCKET')
+#       - export CSC_DB_DATABASE=$(aws secretsmanager get-secret-value --secret-id $CSC_SECRET_MANAGER --output text --query SecretString | jq -r '.CSC_DB_DATABASE')
+#       - export CSC_DB_PASSWORD=$(aws secretsmanager get-secret-value --secret-id $CSC_SECRET_MANAGER --output text --query SecretString | jq -r '.CSC_DB_PASSWORD')
+#       - sed -i -r "s/APP_KEY=/APP_KEY=$CSC_APP_KEY/g" .env
+#       - sed -i -r "s,APP_URL=(.*$),APP_URL=$CSC_APP_URL,g" .env
+#       - sed -i -r "s/DB_HOST=(.*$)/DB_HOST=$CSC_DB_HOST/g" .env
+#       - sed -i -r "s/DB_HOST_READ=(.*$)/DB_HOST_READ=$CSC_DB_HOST_READ/g" .env
+#       - sed -i -r "s/DB_USERNAME=(.*$)/DB_USERNAME=$CSC_DB_USERNAME/g" .env
+#       - sed -i -r "s/DB_PASSWORD=(.*$)/DB_PASSWORD=$CSC_DB_PASSWORD/g" .env
+#       - sed -i -r "s/AWS_DEFAULT_REGION=(.*$)/AWS_DEFAULT_REGION=$CSC_AWS_DEFAULT_REGION/g" .env
+#       - sed -i -r "s/AWS_BUCKET=(.*$)/AWS_BUCKET=$CSC_AWS_BUCKET/g" .env
+#       - sed -i -r "s/DB_DATABASE=(.*$)/DB_DATABASE=$CSC_DB_DATABASE/g" .env
+#       - composer update
+#       - composer install
+#       - yarn install
+#       - echo export LB_TARGET_GROUP_ARN=$CSC_LB_TARGET_GROUP_ARN >> environment.txt
+#       - echo export AWS_DEFAULT_REGION=$CSC_AWS_DEFAULT_REGION >> environment.txt
+#       - node deploy/lambda/updateCodeDeplyGroup.js $CSC_CODE_DEPLOY_APP_NAME $CSC_CODE_DEPLOY_GROUP_NAME $CSC_AWS_DEFAULT_REGION
+
+#   build:
+#     commands:
+#       - php artisan config:clear
+#       - php artisan cache:clear
+#       - php artisan view:clear
+#       - php artisan route:clear
+
+#   post_build:
+#     commands:
+#       - php artisan migrate
+#       - yarn run prod
+
+# artifacts:
+#   files:
+#     - '**/*'

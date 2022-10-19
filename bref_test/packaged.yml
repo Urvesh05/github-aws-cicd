@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Bref Laravel Serverlsss project
+
+  '
+Resources:
+  MyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Lambda function to hosts entire application codebase
+      CodeUri: s3://aws-test-laravel-15/83e4ecd98f77e46c543773c377a75d67
+      Runtime: provided.al2
+      Handler: app/public/index.php
+      MemorySize: 1024
+      Timeout: 28
+      Role:
+        Fn::GetAtt:
+        - LaravelFunctionExecutionRole
+        - Arn
+      Layers:
+      - arn:aws:lambda:us-east-1:209497400698:layer:php-81-fpm:32
+      Events:
+        LaravelRootApi:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+    Metadata:
+      SamResourceId: MyFunction
+  LaravelFunctionExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: Laravel_Job_Role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Policies:
+      - PolicyName: allowLambdaLogging
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource: arn:aws:logs:*:*:*
+    Metadata:
+      SamResourceId: LaravelFunctionExecutionRole
+Outputs:
+  LaravelFunctionApi:
+    Description: URL of our function in the Gateway API *Prod* environment
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
