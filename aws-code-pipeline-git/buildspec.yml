@@ -4,21 +4,33 @@ phases:
   install:
     runtime-versions:
       php: 8.1
+      nodejs: 14.x
     commands:
+      # - sudo apt install php8.1
+      - curl -sS https://getcomposer.org/installer | php 
+      - mv composer.phar /usr/local/bin/composer 
+      - npm install -g yarn
+      - npm i aws-sdk
+      - yum install -y jq
 
   pre_build:
     commands:
-      - echo Nothing to do in the pre_build phase...
+      - composer update
+      - composer install
+      - yarn install
 
   build:
     commands:
-      - echo Build started on `date`
-      - mvn install
+      - php artisan config:clear
+      - php artisan cache:clear
+      - php artisan view:clear
+      - php artisan route:clear 
 
   post_build:
     commands:
-      - echo Build completed on `date`
+      - php artisan migrate
+      - yarn run prod
 
 artifacts:
   files:
-    - 
+    - '**/*'

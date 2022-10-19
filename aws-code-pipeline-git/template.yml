@@ -1,0 +1,386 @@
+
+AWSTemplateFormatVersion: 2010-09-09
+Description: AWS Cloudformation Template for CSC-Portal Setup
+
+Parameters:
+  ClientShortName:
+    Description: Client Short Name
+    Type: String
+    Default: php-portal
+
+  ApplicationName:
+    Description: "Used to name resources provisioned by this template"
+    Type: String
+    Default: pipeline-cf-php
+
+  GitHubUser:
+    Description: "The GitHub username which owns the repository to be deployed"
+    Type: String
+    Default: "Urvesh05"
+
+  GitHubRepository:
+    Description: "The name of the repository to deploy"
+    Type: String
+    Default: 'github-aws-cicd'
+
+  GitHubBranch:
+    Description: "The branch of the repository to deploy"
+    Type: String
+    Default: "master"
+
+  OAuthToken:
+    Description: "oauth token"
+    Type: String
+    Default: "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"  
+
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
+
+  CodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name:
+        Fn::Join:
+          - "-"
+          - - "cp"
+            - !Ref ClientShortName
+      RoleArn: !GetAtt  CodePipelineRole.Arn
+      Tags:
+        - Key: client
+          Value: !Ref ClientShortName
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: GitHub
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              OutputArtifacts:
+                -  Name: SourceArtifact
+              Configuration:
+                Owner: !Ref GitHubUser
+                Repo: !Ref GitHubRepository
+                Branch: !Ref GitHubBranch
+                OAuthToken: !Ref OAuthToken
+                OAuthToken: !Ref OAuthToken
+
+        - Name: Build
+          Actions:
+            - Name: Build
+              InputArtifacts:
+                - Name: SourceArtifact
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              OutputArtifacts:
+                - Name: BuildArtifact
+              Namespace: BuildVariables
+              Configuration:
+                ProjectName: !Ref CodeBuild
+                # EnvironmentVariables:
+                #   Fn::Join:
+                #     - ""
+                #     - - '['
+
+                #       - '{"name":"CSC_CODE_DEPLOY_GROUP_NAME", "value": "'
+                #       - !Ref DeploymentGroup
+                #       - '" , "type":"PLAINTEXT"},'
+
+                #       - '{"name":"CSC_CODE_DEPLOY_APP_NAME", "value": "'
+                #       - !Ref CodeDeployApplication
+                #       - '" , "type":"PLAINTEXT"},'
+
+                #       - '{"name":"CSC_LB_TARGET_GROUP_ARN", "value": "'
+                #       - !Ref CscEc2TargetGroup
+                #       - '" , "type":"PLAINTEXT"}]'
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              RunOrder: 1
+              InputArtifacts:
+                - Name: BuildArtifact
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CodeDeploy
+              Configuration:
+                ApplicationName: !Ref CodeDeployApplication
+                DeploymentGroupName:
+                    Fn::Join:
+                      - "-"
+                      - - "cp-cg"
+                        - !Ref ClientShortName
+      ArtifactStore:
+        Type: S3
+        Location: !Ref S3Bucket
+
+
+  CodeBuild:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name:
+        Fn::Join:
+          - "-"
+          - - "cp-cb"
+            - !Ref ClientShortName
+      Tags:
+        - Key: client
+          Value: !Ref ClientShortName
+
+      Description: "Build project for the application"
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec.yml
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+        Type: LINUX_CONTAINER
+
+      Artifacts:
+        Name:
+          Fn::Join:
+            - "-"
+            - - "cp-cb"
+              - !Ref ClientShortName
+        Type: CODEPIPELINE
+
+  CodeDeployApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName:
+        Fn::Join:
+          - "-"
+          - - "cp-cd"
+            - !Ref ClientShortName
+
+      ComputePlatform: Server
+      Tags:
+        - Key: client
+          Value: !Ref ClientShortName
+
+  # DeploymentGroup:
+  #   Type: AWS::CodeDeploy::DeploymentGroup
+  #   Properties:
+  #     ApplicationName: !Ref CodeDeployApplication
+  #     ServiceRoleArn:  !GetAtt CodeDeployServiceRole.Arn
+  #     DeploymentGroupName:
+  #       Fn::Join:
+  #         - "-"
+  #         - - "cp-cg"
+  #           - !Ref ClientShortName
+  #     Tags:
+  #       - Key: client
+  #         Value: !Ref ClientShortName
+
+
+
+  CodePipelineCloudFormationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      RoleName: !Sub "role-${ApplicationName}-${ClientShortName}-cfn-${AWS::Region}"
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "cloudformation.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: !Sub "policy-${ApplicationName}-${ClientShortName}cfn-${AWS::Region}"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Resource: "*"
+                Action:
+                  - "*"
+      Tags:
+        - Key: client
+          Value: !Ref ClientShortName
+
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      RoleName: !Sub "role-${ApplicationName}-${ClientShortName}-codepipeline-${AWS::Region}"
+      Tags:
+        - Key: client
+          Value: !Ref ClientShortName
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "codepipeline.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: !Sub "policy-${ApplicationName}-${ClientShortName}-codepipeline-${AWS::Region}"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Resource: "*"
+                Action:
+                  - "s3:PutObject"
+                  - "s3:GetObject"
+                  - "s3:GetObjectVersion"
+                  - "s3:GetBucketVersioning"
+              - Effect: "Allow"
+                Resource: "*"
+                Action:
+                  - "codedeploy:CreateDeployment"
+                  - "codedeploy:GetApplicationRevision"
+                  - "codedeploy:GetDeployment"
+                  - "codedeploy:GetDeploymentConfig"
+                  - "codedeploy:RegisterApplicationRevision"
+                  - "codebuild:BatchGetBuilds"
+                  - "codebuild:StartBuild"
+                  - "iam:PassRole"
+              - Effect: "Allow"
+                Resource: "*"
+                Action:
+                  - "cloudformation:CreateStack"
+                  - "cloudformation:DeleteStack"
+                  - "cloudformation:DescribeStacks"
+                  - "cloudformation:UpdateStack"
+                  - "cloudformation:CreateChangeSet"
+                  - "cloudformation:DeleteChangeSet"
+                  - "cloudformation:DescribeChangeSet"
+                  - "cloudformation:ExecuteChangeSet"
+                  - "cloudformation:SetStackPolicy"
+                  - "cloudformation:ValidateTemplate"
+              - Effect: "Allow"
+                Resource: "*"
+                Action:
+                  - "codestar:*"
+
+
+  CodePipelineCloudFormationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      RoleName: !Sub "role-${ApplicationName}-${ClientShortName}-cfn-${AWS::Region}"
+      Tags:
+        - Key: client
+          Value: !Ref ClientShortName
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "cloudformation.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: !Sub "policy-${ApplicationName}-${ClientShortName}-cfn-${AWS::Region}"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Resource: "*"
+                Action:
+                  - "*"
+
+  CodeDeployServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      RoleName: !Sub "role-${ApplicationName}-${ClientShortName}-codedeploy-${AWS::Region}"
+      Tags:
+        - Key: client
+          Value: !Ref ClientShortName
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "codedeploy.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
+
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      RoleName: !Sub "role-${ApplicationName}-${ClientShortName}-codebuild-${AWS::Region}"
+      Tags:
+        - Key: client
+          Value: !Ref ClientShortName
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "codebuild.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: !Sub "policy-${ApplicationName}-${ClientShortName}-codebuild-${AWS::Region}"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Resource: "*"
+                Action:
+                  - "codedeploy:UpdateApplication"
+                  - "codedeploy:UpdateDeploymentGroup"
+                  - "codedeploy:GetDeploymentGroup"
+                  - "cloudformation:DescribeStacks"
+                  - "secretsmanager:GetSecretValue"
+              - Effect: "Allow"
+                Resource: "*"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+              - Effect: "Allow"
+                Resource: "*"
+                Action:
+                  - "s3:GetObject"
+                  - "s3:GetObjectVersion"
+                  - "s3:PutObject"
+  LambdaEventRoles:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      RoleName: !Sub "role-${ApplicationName}-${ClientShortName}-lambda-${AWS::Region}"
+      Tags:
+        - Key: client
+          Value: !Ref ClientShortName
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: !Sub "policy-${ApplicationName}-${ClientShortName}-codepipeline-${AWS::Region}"
+          PolicyDocument:
+            Statement:
+              - Effect: "Allow"
+                Resource: "*"
+                Action:
+                  - "ssm:*"
+              - Effect: "Allow"
+                Resource: "*"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+              - Effect: "Allow"
+                Resource: "*"
+                Action:
+                  - "autoscaling:*"
+              - Effect: "Allow"
+                Resource: "*"
+                Action:
+                  - "codedeploy:*"
+
