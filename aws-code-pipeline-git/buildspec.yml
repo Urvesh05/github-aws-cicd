@@ -8,17 +8,20 @@ phases:
     commands:
       # - sudo apt install php8.1
       - curl -sS https://getcomposer.org/installer | php
-      - mv composer.phar /usr/local/bin/composer.phar
-      - alias composer='/usr/local/bin/composer.phar'
+      - mv composer.phar /usr/local/bin/composer
+      # - mv composer.phar ~/.local/bin/composer
+      - alias composer="php /usr/local/bin/composer.phar"
+      # - cd /usr/local/bin
+      # - mv composer.phar composer
       - npm install -g yarn
       - npm i aws-sdk
       # - yum install -y jq
 
   pre_build:
     commands:
-      - php composer.phar update
+      - composer.phar update
       # - composer update
-      - php composer.phar install
+      - composer.phar install
       # - yarn install
 
   build:
