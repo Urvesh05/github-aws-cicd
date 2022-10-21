@@ -16,7 +16,7 @@ phases:
   pre_build:
     commands:
       # - composer update
-      # - composer install
+      - composer install
       # - yarn install
 
   build:
