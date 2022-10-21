@@ -31,7 +31,7 @@ Parameters:
   OAuthToken:
     Description: "oauth token"
     Type: String
-    Default: "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"  
+    Default: "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"  
 
 Resources:
   S3Bucket:

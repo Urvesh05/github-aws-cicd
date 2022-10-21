@@ -3,19 +3,19 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      php: 8.1
-      nodejs: 14.x
+      php: 7.4
+      nodejs: 12.x
     commands:
       # - sudo apt install php8.1
       - curl -sS https://getcomposer.org/installer | php 
       - mv composer.phar /usr/local/bin/composer 
       - npm install -g yarn
       - npm i aws-sdk
-      - yum install -y jq
+      # - yum install -y jq
 
   pre_build:
     commands:
-      - composer update
+      # - composer update
       - composer install
       - yarn install
 
