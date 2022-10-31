@@ -3,44 +3,49 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      php: 7.4
+      # php: 7.4
       nodejs: 12.x
-    commands:
-      # - sudo apt install php8.1
-      - curl -sS https://getcomposer.org/installer | php
-      - mv composer.phar /usr/local/bin/composer
-      # - mv composer.phar ~/.local/bin/composer
-      - alias composer="php /usr/local/bin/composer.phar"
-      # - cd /usr/local/bin
-      # - mv composer.phar composer
-      - npm install -g yarn
-      - npm i aws-sdk
-      # - yum install -y jq
+    # commands:
+    #   # - sudo apt install php8.1
+    #   - curl -sS https://getcomposer.org/installer | php
+    #   - mv composer.phar /usr/local/bin/composer
+    #   # - mv composer.phar ~/.local/bin/composer
+    #   - alias composer="php /usr/local/bin/composer.phar"
+    #   # - cd /usr/local/bin
+    #   # - mv composer.phar composer
+    #   - npm install -g yarn
+    #   - npm i aws-sdk
+    #   # - yum install -y jq
 
-  pre_build:
     commands:
-      - composer.phar update
-      # - composer update
-      - composer.phar install
-      # - yarn install
+      # Install all dependencies (including dependencies for running tests)
+      - npm install
+
+  # pre_build:
+  #   commands:
+  #     - composer.phar update
+  #     # - composer update
+  #     - composer.phar install
+  #     # - yarn install
 
   build:
     commands:
       - echo Build started on `date`
-      - echo Installing composer deps
-      - composer install --no-progress --no-suggest
-      # - cp extra/.env ./
-      - php artisan cache:clear
-      # - php artisan config:clear
+      # - echo Installing composer deps
+      # - composer install --no-progress --no-suggest
+      # # - cp extra/.env ./
       # - php artisan cache:clear
-      # - php artisan view:clear
-      # - php artisan route:clear 
+      # # - php artisan config:clear
+      # # - php artisan cache:clear
+      # # - php artisan view:clear
+      # # - php artisan route:clear 
+      - npm test
 
-  post_build:
-    commands:
-      - echo Build completed on `date`
-      # - php artisan migrate
-      # - yarn run prod
+  # post_build:
+  #   commands:
+  #     - echo Build completed on `date`
+  #     # - php artisan migrate
+  #     # - yarn run prod
 
 artifacts:
   files:
