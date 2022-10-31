@@ -5,7 +5,8 @@ phases:
     runtime-versions:
       # php: 7.4
       nodejs: 12.x
-    # commands:
+    commands:
+      - aws cloudformation package --template-file template.yml --s3-bucket aws-test-laravel-15 --output-template-file package.yml
     #   # - sudo apt install php8.1
     #   - curl -sS https://getcomposer.org/installer | php
     #   - mv composer.phar /usr/local/bin/composer
@@ -48,5 +49,8 @@ phases:
   #     # - yarn run prod
 
 artifacts:
+  type: zip
   files:
-    - '**/*'
+    # - '**/*'
+    - template.yml
+    - package.yaml
