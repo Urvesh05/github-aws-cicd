@@ -1,25 +1,37 @@
+# version: 0.2
+
+# phases:
+#   install:
+#     runtime-versions:
+#       nodejs: 12.x
+#     commands:
+#       - npm install
+
+#   pre_build:
+#     commands:
+#       - echo Nothing to do in the pre_build phase...
+
+#   build:
+#     commands:
+#       - echo Build started on `date`
+# #       - mvn install
+
+#   post_build:
+#     commands:
+#       - echo Build completed on `date`
+
+# artifacts:
+#   files:
+#     - 
 version: 0.2
 
 phases:
   install:
-    runtime-versions:
-      nodejs: 12.x
     commands:
       - npm install
-
-  pre_build:
-    commands:
-      - echo Nothing to do in the pre_build phase...
-
   build:
     commands:
-      - echo Build started on `date`
-#       - mvn install
-
-  post_build:
-    commands:
-      - echo Build completed on `date`
-
+      - npm test
 artifacts:
   files:
-    - 
+    - '**/*'
