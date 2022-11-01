@@ -3,8 +3,9 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      php: 8.1
+      nodejs: 12.x
     commands:
+      - npm install
 
   pre_build:
     commands:
@@ -13,7 +14,7 @@ phases:
   build:
     commands:
       - echo Build started on `date`
-      - mvn install
+#       - mvn install
 
   post_build:
     commands:
