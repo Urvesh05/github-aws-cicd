@@ -17,7 +17,7 @@ phases:
       # - composer install --optimize-autoloader --no-dev
   build:
     commands:
-      - 
+      - ls
 
   post_build:
     commands:
