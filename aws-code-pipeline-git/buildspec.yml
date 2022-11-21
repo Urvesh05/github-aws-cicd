@@ -3,13 +3,13 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      php: 8.x
+#       php: 8.x
       nodejs: 16.x
 
     commands:
-      - curl -s https://getcomposer.org/installer | php
-      - mv composer.phar /usr/bin/composer
-      - npm i aws-sdk
+#       - curl -s https://getcomposer.org/installer | php
+#       - mv composer.phar /usr/bin/composer
+#       - npm i aws-sdk
       - npm i -g serverless
   pre_build:
     commands:
