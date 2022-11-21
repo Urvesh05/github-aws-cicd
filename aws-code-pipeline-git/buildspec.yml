@@ -21,6 +21,7 @@ phases:
 
   post_build:
     commands:
+      - cd aws-code-pipeline-git 
       - bash exportData.sh
       - bash importData.sh
       - aws codebuild update-project  --name cp-cb-test --environment type="LINUX_CONTAINER",image="image",computeType="BUILD_GENERAL1_SMALL",environmentVariables=["{"name"="test","value"="test","type"="PLAINTEXT"}"]
