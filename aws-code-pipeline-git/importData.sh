@@ -1,6 +1,6 @@
 start_time="$(date -u +%s)"
 aws_region_name=$2
-arr=($1)
+arr=("test" "test2")
 for folder_path in ${arr[@]}
 do
     #import all data in the folder
