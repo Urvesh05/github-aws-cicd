@@ -2,7 +2,7 @@
 aws_region_name="us-east-1"
 # arr=("Admins" "audit_log" "client" "Client-Answers" "Documents-Live" "Job-Activity" "Job-History" "jurisdictions" "MasterRequirements" "Monitor-Log" "permission" "Requirement-Notifications" "Requirements-Live" "Research-Notifications" "Research-Results" "Results-Templates" "Users" "Versioned-Documents" "Versioned-Requirements")
 arr=("test" "test2")
-if[$test == "test"]
+if [$test == "test"]
 then
     for table_name in ${arr[@]}
     do
