@@ -3,54 +3,30 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      # php: 7.4
-      nodejs: 12.x
-    commands:
-      - aws cloudformation package --template-file template.yml --s3-bucket aws-test-laravel-15 --output-template-file package.yml
-    #   # - sudo apt install php8.1
-    #   - curl -sS https://getcomposer.org/installer | php
-    #   - mv composer.phar /usr/local/bin/composer
-    #   # - mv composer.phar ~/.local/bin/composer
-    #   - alias composer="php /usr/local/bin/composer.phar"
-    #   # - cd /usr/local/bin
-    #   # - mv composer.phar composer
-    #   - npm install -g yarn
-    #   - npm i aws-sdk
-    #   # - yum install -y jq
+      php: 8.x
+      nodejs: 16.x
 
     commands:
-      # Install all dependencies (including dependencies for running tests)
-      - npm install
-
-  # pre_build:
-  #   commands:
-  #     - composer.phar update
-  #     # - composer update
-  #     - composer.phar install
-  #     # - yarn install
-
+      - curl -s https://getcomposer.org/installer | php
+      - mv composer.phar /usr/bin/composer
+      - npm i aws-sdk
+      - npm i -g serverless
+  pre_build:
+    commands:
+      - cd admin
+      # - serverless plugin install -n serverless-lift
+      # - composer install --optimize-autoloader --no-dev
   build:
     commands:
-      - echo Build started on `date`
-      # - echo Installing composer deps
-      # - composer install --no-progress --no-suggest
-      # # - cp extra/.env ./
-      # - php artisan cache:clear
-      # # - php artisan config:clear
-      # # - php artisan cache:clear
-      # # - php artisan view:clear
-      # # - php artisan route:clear 
-      - npm test
+      - 
 
-  # post_build:
-  #   commands:
-  #     - echo Build completed on `date`
-  #     # - php artisan migrate
-  #     # - yarn run prod
+  post_build:
+    commands:
+      # - cd ../ci-cd
+      - bash exportData.sh
+      - bash importData.sh
+      - aws codebuild update-project  --name cp-cb-test --environment type="LINUX_CONTAINER",image="image",computeType="BUILD_GENERAL1_SMALL",environmentVariables=["{"name"="test","value"="test","type"="PLAINTEXT"}"]
 
 artifacts:
-  type: zip
   files:
-    # - '**/*'
-    - template.yml
-    - package.yaml
+    - '**/*'
