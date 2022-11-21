@@ -2,7 +2,7 @@ start_time="$(date -u +%s)"
 aws_region_name=$2
 echo " data $test"
 arr=("test" "test2")
-if[$test == "test"]
+if [$test == "test"]
 then
     for folder_path in ${arr[@]}
     do
