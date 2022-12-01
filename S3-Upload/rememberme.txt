@@ -1,0 +1,148 @@
+<html> 
+  <head>
+  	  <title>loginpage</title>
+  	  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+      <style>
+        body{
+ background-image: linear-gradient(45deg,#4073d0,#aae8d1);
+}
+.loginbox{
+border-radius: 10px;
+width: 395px;
+height: 450px;
+/* background-image: linear-gradient(45deg, #ffe6e617, #fffffe); */
+background: #fffdfd;
+margin-left: 487px;
+margin-top: 74px;
+padding: 30px;
+box-sizing: border-box;
+}
+.login{
+  text-align: center;
+  color: #3ca0da;
+  font-size: 30px;
+  font-weight: bold;
+}
+.childdiv{
+  margin-left: 45px;
+  /* background-image: linear-gradient(45deg, #ef6868, transparent); */
+}
+.inputbox{
+  
+  width: 255px;
+  height: 33px;
+  
+  background: transparent;
+  
+}
+.btn{
+  margin-top: 20px;
+  width: 259px;
+  /* border: none; */
+  border-style: hidden;
+  color: #fff;
+  height: 35px;
+  font-size: 17px;
+  background-image: linear-gradient(227deg, #595dec,#41ffff);
+}
+
+.linkpara{
+  text-align: center;
+}
+.links{
+  color: #64a1c5;
+}
+.socialiconbox{
+  text-align: center;
+  margin-left: -8px;
+}
+.socialicon{
+  width: 35px;
+  height: 16px;
+  padding: 8px 2px;
+  background: #00c4ff;
+  color: #fff;
+}
+.inputbox::focus{
+  outline:none;
+}
+      </style>
+  </head>
+  <body onload="getcookiedata()">
+
+   <div class="loginbox">
+   	   
+   	    <p class="login">Login</p>
+        <div class="childdiv">
+         <form method="post">
+   	    <input type="email" name="username" id="username" placeholder="Enter Email" required class="inputbox">
+   	    <br><br>
+   	    <input type="password" name="pwd" id="password" placeholder="Enter Password" required class="inputbox">
+   	    <br><br>
+        <input type="checkbox" name="rememberme" id="rememberme" onclick="setcookie()">Remember Me
+        
+   	    <input type="submit" name="login" value="SignIn" class="btn">
+   	    <p class="linkspara"><a href="#" class="links">forgot password ?</a></p>
+   	    <p class="linkspara"><a href="" class="links">create new account</a></p>
+
+
+   	      <p class="socialiconbox">
+   	      	<span class="fa fa-facebook socialicon"></span>
+   	      	<span class="fa fa-twitter socialicon"></span>
+   	      	<span class="fa fa-instagram socialicon"></span>
+   	      	<span class="fa fa-youtube-play socialicon"></span>
+   	      </p>
+
+        </form>
+   	    </div>
+   </div>
+
+   <script type="text/javascript">
+     
+           function setcookie(){
+            var u =document.getElementById('username').value;
+            var p =document.getElementById('password').value;
+
+            document.cookie="myusrname="+u+";path=http://localhost/web6pm/";
+            document.cookie="mypswd="+p+";path=http://localhost/web6pm/";
+           }
+
+
+           function getcookiedata(){
+
+            console.log(document.cookie);
+
+            var user=getCookie('myusrname');
+            var pswd=getCookie('mypswd');
+
+            document.getElementById('username').value=user;
+            document.getElementById('password').value=pswd;
+
+           }
+
+
+
+
+      function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i <ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+          }
+        }
+        return "";
+       }
+
+
+
+
+   </script>
+  	
+  </body>
+</html>
