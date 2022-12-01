@@ -1,0 +1,159 @@
+<!DOCTYPE html> 
+    <head>
+        <title>This is Hello Page</title>
+
+        <style>
+            /*
+            HTML Links - Different Colors*/
+
+            /*
+            a:link{
+                color: green;
+                background-color: transparent;
+                text-decoration: none;
+            }
+
+            a:visited{
+                color: pink;
+                background-color: transparent;
+                text-decoration: none;
+            }
+
+            a:hover{
+                color: red;
+                background-color: transparent;
+                text-decoration: underline;
+            }
+            a:active{
+                color: yellow;
+                background-color: transparent;
+                text-decoration: underline;
+            }
+            */
+
+            /*Link Buttons*/
+
+            a:link, a:visited{
+                background-color: #6713c7;
+                color: white;
+                padding: 10px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+            }
+
+            a:hover, a:active{
+                background-color: red;
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <h1>This is a hello page..!</h1>
+
+        <h2>HTML Link color...</h2>
+
+        <p>You can change the default colors of links</p>
+
+        <a href="https://google.com/" target="_blank">Google Link</a>
+
+        <!--Create BookMark -->
+
+        <h2>Create a Bookmark in HTML</h2>
+
+        <p><a href="#C3">Jump to Chepter 3</a></p>
+        <p><a href="#C10">Jump to Chepter 10</a></p>
+
+        <h2>Chapter 1</h2>
+        <p>This chapter explains ba bla bla</p>
+
+        <h2>Chapter 2</h2>
+        <p>This chapter explains ba bla bla</p>
+
+        <h2 id="C3"> Chepter 3</h2>
+        <p>This chapter explains ba bla bla</p>
+
+        <h2 id="C4">Chapter 4</h2>
+        <p>This chapter explains ba bla bla</p>
+
+        <h2>Chapter 5</h2>
+        <p>This chapter explains ba bla bla</p>
+
+        <h2>Chapter 6</h2>
+        <p>This chapter explains ba bla bla</p>
+
+        <h2>Chapter 7</h2>
+        <p>This chapter explains ba bla bla</p>
+
+        <h2>Chapter 8</h2>
+        <p>This chapter explains ba bla bla</p>
+
+        <h2>Chapter 9</h2>
+        <p>This chapter explains ba bla bla</p>
+
+        <h2 id="C10">Chapter 10</h2>
+        <p>This chapter explains ba bla bla</p>
+
+        <h2>Chapter 11</h2>
+        <p>This chapter explains ba bla bla</p>
+
+        <h2>Chapter 12</h2>
+        <p>This chapter explains ba bla bla</p>
+
+        <!--html Image-->
+        <h3>Html Image</h3>
+        <img src="D:\Test\images\google_image.png" alt=" google" width="380" height="300">
+        <img src="D:\Test\images\Natural_Image.jpg" alt=" nature" width="450" height="300">
+        <img src="D:\Test\images\img_the_scream.jpg" alt=" Scream"  style="width:460px; height:300px;">
+
+        <!--The alt Attribute-->
+        <!--The required alt attribute provides an alternate text for an image, if the user for some reason cannot view
+             it (because of slow connection, an error in the src attribute, or if the user uses a screen reader).-->
+        <img src="D:\Test\images\img_the_scre.jpg" alt=" image not found" width="460" height="300">
+        <br>
+
+            <!--gif image-->
+        <img src="D:\Test\images\programmer.gif" alt="computer program" style="width:200px;height:300;">
+            <br>
+
+            <!--The image will float to the right of the text.-->
+            <p><strong style="float:right;">Float the image to the right:</strong></p>
+        <p><img src="D:\Test\images\programmer.gif" alt="Smiley face" style="float:right;width:160px;height:100px;">
+         </p>
+
+            <br>
+
+            <!--Image Maps-->
+            <h2>Image Maps</h2>
+            <p>Click on the computer, the phone, or the cup of coffee to go to a new page and read more about the topic:</p>
+            <img src="D:\Test\images\workplace.jpg" alt="workplace" usemap="#workmap" width="400" height="380">
+
+            <map name="workmap">
+                <area shape="rect" coords="34,44,270,350" alt="Computers" href="computer.html" target="_blank">
+                <area shape="rect" coords="290,172,333,250" alt="Phone" href="phone.html" target="_blank">
+                <area shape="circle" coords="337,300,44" alt="Cup of coffee" href="coffee.html" target="_blank">
+            </map>
+            <br>
+            
+            <h2 style="text-align: right;">Click on the cup of coffee to execute a JavaScript function:</h2><br>
+            <img src="D:\Test\images\workplace.jpg" alt="Workplace" usemap="#workmap1" style="float: right;">
+                <map name="workmap1">
+                    <area shape="circle" coords="337, 300, 44" href="coffee.html" target="_blank" onclick="myFunction()">
+
+                </map>
+
+                <script>
+                    function myFunction()
+                    {
+                        alert("You clicked the coffee cup..!")
+                    }
+                </script>
+                <br>
+
+            <h4><a href="table.html" target="_blank">Table page in html</a></h4>
+
+    </body>
+</html>
