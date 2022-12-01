@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Template</title>
+
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /* Style the header */
+        header
+        {
+            background-color: #666;
+            padding: 30px;
+            text-align: center;
+            font-size: 30px;
+            color: white;
+        }
+        /* nav{
+            float:left;
+            width: 30px;
+            height: 300px;
+            padding: 30px;
+            background: #ccc;
+        } */
+        nav{
+            float: left;
+            padding: 30px;
+            width: 20%;
+            height: 300px;
+            color: #ccc;
+            background: rgb(94, 218, 211);
+        }
+        nav ul{
+            padding: none;
+        }
+
+    article
+
+    {
+        float: left;
+        padding: 20px;
+        width: 60%;
+        background-color: #f1f1f1;
+        height: 300px;
+    }
+
+    aside
+    {
+        float: left;
+        padding: 20px;
+        width: 20%;
+        height: 300px;
+        background-color: #f3ff33;
+    }
+
+    section::after
+    {
+        content: "";
+        display: table;
+        clear: both;
+
+    }
+
+    footer{
+        background-color: #777;
+        padding: 30px;
+        text-align: center;
+        color: white;        
+    }
+ 
+    </style>
+</head>
+<body>
+    <header>This is Header</header>
+
+    <section>
+        <nav>
+            <ul>
+                <li>
+                    <a href="#">Surat</a>
+                </li>
+                <li>
+                    <a href="#">Rajkot</a>
+                </li>
+                <li>
+                    <a href="#">Baroda</a>
+                </li>
+            </ul>
+        </nav>
+
+        <article>
+            <h1>Surat</h1>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Soluta labore magni ullam delectus consequatur adipisci voluptatibus alias quidem nesciunt. Quibusdam magnam inventore sequi accusamus possimus voluptates facilis obcaecati quisquam tenetur?</p>
+        </article>
+
+        <aside>
+            <p>This is aside layout</p>
+        </aside>
+    </section>
+
+    <footer>Footer section</footer>
+    
+</body>
+</html>
