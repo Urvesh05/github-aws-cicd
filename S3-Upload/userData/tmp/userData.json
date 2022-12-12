@@ -1,22 +1,8 @@
 [
    {
-      "userName": "tarun@gmail.com",
-      "password": "test@123",
-      "id": "df478d22-79fc-11ed-85e0-b698b27753d7",
-      "firstName": "Tarun",
-      "lastName": "Patel"
-   },
-   {
-      "userName": "rahul@gmail.com",
-      "password": "test@123",
-      "id": "ba13cde6-79fb-11ed-9e43-7e58c0557e33",
-      "firstName": "Rahul",
-      "lastName": "Patel"
-   },
-   {
       "userName": "reena@gmail.com",
       "password": "test@123",
-      "id": "5353c6e0-79fd-11ed-85e0-b698b27753d7",
+      "id": "9e70995d-7a00-11ed-b3b6-dd40d35709c9",
       "firstName": "Reena",
       "lastName": "Patel"
    }
