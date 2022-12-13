@@ -1,15 +1,8 @@
 [
    {
-      "userName": "alkesh@gmail.com",
-      "password": "test@123",
-      "id": "3d683390-7a08-11ed-b3ef-abe589f4f051",
-      "firstName": "Alkesh",
-      "lastName": "Patel"
-   },
-   {
       "userName": "rohan@gmail.com",
       "password": "test@123",
-      "id": "cdc6e804-7a08-11ed-802b-abe589f4f051",
+      "id": "b7b2c9dd-7ac8-11ed-8846-6d697defb92f",
       "firstName": "Rohan",
       "lastName": "trivedi"
    }
