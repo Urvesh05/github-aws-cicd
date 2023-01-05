@@ -1,0 +1,46 @@
+version: 0.2
+
+# env:
+  # parameter-store:
+  #   AWS_ACCESS_KEY_ID_PARAM   : AWS_ACCESS_KEY_ID
+  #   AWS_SECRET_ACCESS_KEY_PARAM    : AWS_SECRET_ACCESS_KEY
+   
+  # secrets-manager:  
+  #   AWS_CODECOMMIT_SSH_PRIVATE: AWS_CODECOMMIT_SSH_PRIVATE
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14.x
+    
+    commands:
+      - echo Entered the install phase...
+      - npm install
+      # - npm i npm@latest -g
+      # - npm i aws-sdk
+      # - aws configure set default.region $AWS_REGION
+
+  pre_build:
+    commands:
+      - echo Installing source NPM dependencies...
+      # - export GITAOUT_TOKEN=${GITAOUT_TOKEN}
+      # - export BranchName=${BranchName}
+      # - export CommitMessage=${CommitMessage}
+      # - apt-get update
+      # - npm install
+      
+  build:
+    commands:
+      - echo Build started on `date`
+  
+      # - export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_PARAM
+      # - export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_PARAM
+      - npm run build
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+
+artifacts:
+  files:
+     - '**/*'
